@@ -21,25 +21,25 @@ class NerLSTM(Model):
         self._embedder = embedder
         self._encoder = encoder
         self._classifier = nn.Linear(in_features=encoder.get_output_dim(),
-                                     out_features=vocab.get_vocab_size('labels'))
+                                     out_features=vocab.get_vocab_size('ne_tags'))
 
-        self._f1 = SpanBasedF1Measure(vocab, 'labels')
+        self._f1 = SpanBasedF1Measure(vocab, 'ne_tags')
 
     def forward(self,
                 tokens: Dict[str, torch.Tensor],
-                label: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
+                ne_tags: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
         mask = get_text_field_mask(tokens)
 
         embedded = self._embedder(tokens)
         encoded = self._encoder(embedded, mask)
         classified = self._classifier(encoded)
 
-        self._f1(classified, label, mask)
+        self._f1(classified, ne_tags, mask)
 
         output: Dict[str, torch.Tensor] = {}
 
-        if label is not None:
-            output["loss"] = sequence_cross_entropy_with_logits(classified, label, mask)
+        if ne_tags is not None:
+            output["loss"] = sequence_cross_entropy_with_logits(classified, ne_tags, mask)
 
         return output
 

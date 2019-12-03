@@ -1,11 +1,10 @@
 {
   dataset_reader: {
-    type: 'conll_03_reader',
+    type: 'best2010_reader',
     token_indexers: {
       tokens: {
         type: 'single_id',
-        namespace: 'tokens',
-        lowercase_tokens: true
+        namespace: 'tokens'
       }
     },
     lazy: false
@@ -15,16 +14,15 @@
     sorting_keys: [['tokens', 'num_tokens']],
     batch_size: 10
   },
-  train_data_path: 'data/train.txt',
-  validation_data_path: 'data/validation.txt',
+  train_data_path: 'corpora/BEST2010_I2R/Train',
+  validation_data_path: 'corpora/BEST2010_I2R/Dev',
   model: {
     type: 'ner_lstm',
     embedder: {
       tokens: {
         type: 'embedding',
-        pretrained_file: "(http://nlp.stanford.edu/data/glove.6B.zip)#glove.6B.50d.txt",
         embedding_dim: 50,
-        trainable: false
+        trainable: true
       }
     },
     encoder: {

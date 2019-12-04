@@ -82,12 +82,12 @@ class Best2010Reader(DatasetReader):
                         word = re.findall(r'(.*)/(.*)/(.*)',word)     
                         if len(word)<1:#if this pattern is not found it's just a bunch of \n
 
-                            word = ['\n','space','space']# replace multiple \n with just one \n
+                            word = ['\n','space','O']# replace multiple \n with just one \n
                         else:
                             word = word[0]
                     else:
                         #they are just empty space
-                        word = [word,'space','space']                       
+                        word = [word,'space','O']                       
 
                     if len(word[0])>=1:
                         word = list(word)

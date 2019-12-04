@@ -48,9 +48,21 @@ class Best2010Reader(DatasetReader):
         """clean known mistakes after split text into words"""
         word_rawtext=re.sub('/NN//', '/NN/', word_rawtext)
         word_rawtext=re.sub('//PU/', '/PU/', word_rawtext)
-        word_rawtext=re.sub('มท.1/NR/__', 'มท.1/NR/ABB_DES_B', word_rawtext)
+        word_rawtext=re.sub(r'มท.*/NR/__', 'มท.1/NR/ABB_DES_B', word_rawtext)
         word_rawtext=re.sub('MEA_BI', 'MEA_B', word_rawtext)
+        word_rawtext=re.sub('/EA_I', '/MEA_I', word_rawtext)
+        word_rawtext=re.sub('อาร์พี/NR/ABB', 'อาร์พี/NR/O', word_rawtext)
+        word_rawtext=re.sub('หนึ่ง/NN/DDEM', 'หนึ่ง/DDEM/O', word_rawtext)
+
         return word_rawtext
+
+    def __span_label_pattern(self,word_rawtext: str) -> str:
+        """change label pattern so that it matches span-f1"""
+        word_rawtext=re.sub(r'(.*)_B',r'B-\1',word_rawtext)
+        word_rawtext=re.sub(r'(.*)_I',r'I-\1',word_rawtext)
+       
+        return word_rawtext
+
 
     @overrides
     def _read(self, file_path: str) -> Iterator[Instance]:
@@ -82,6 +94,7 @@ class Best2010Reader(DatasetReader):
                         
                         word[1]=word[1].strip()# clean white space around POS tag
                         word[2]=word[2].strip()# clean white space around NER tag
+                        word[2]=self.__span_label_pattern(word[2])
                         word_len.append(len(word[0]))   
                         text_x.append(word[0])
                         text_pos.append(word[1])
@@ -91,7 +104,7 @@ class Best2010Reader(DatasetReader):
                         word_len.append(1)   
                         text_x.append(' ')
                         text_pos.append(word[1])
-                        text_ner.append(word[2]) 
+                        text_ner.append(self.__span_label_pattern(word[2])) 
                  
                 yield self.text_to_instance([Token(word) for word in text_x],
                                             text_pos, text_ner)
